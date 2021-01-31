@@ -1,5 +1,4 @@
-module Main where
-import Debug.Trace
+module Main where 
 
 data Password = Password { requiredChar :: Char 
                          , minOfChar :: Int
@@ -20,13 +19,21 @@ parseLine s = Password {
        (rc:s''') = tail s'' -- "f: abbdf"
        pw = tail $ dropWhile (/=' ') s''' -- ": abbdf" 
 
-passwordValid :: Password -> Bool
-passwordValid p = (charCount <= maxOfChar p) && (charCount >= minOfChar p)
+sledValid :: Password -> Bool
+sledValid p = (charCount <= maxOfChar p) && (charCount >= minOfChar p)
   where 
         charCount = length $ filter (==requiredChar p) $ value p
+
+tobogganValid :: Password -> Bool
+tobogganValid p = (x == a && y /= a) || (x /= a && y == a)
+    where
+        x = value p !! (minOfChar p - 1)
+        y = value p !! (maxOfChar p - 1)
+        a = requiredChar p
 
 main = do
   t <- getContents
   let passwords = map parseLine (lines t)
-  let validCount = length $ filter (passwordValid) passwords
-  print validCount
+  let sledValidCount = length $ filter sledValid passwords
+  let tobogganValidCount = length $ filter tobogganValid passwords
+  print $ "sled valid: " ++ show sledValidCount ++ "toboggan valid: " ++ show tobogganValidCount
