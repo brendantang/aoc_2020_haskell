@@ -1,6 +1,6 @@
 # Day 4, part 1
 
-> I meant to jot down some notes on my thought process and ended up writing like a whole walkthrough/comparison of the solution in both Ruby and Haskell lol
+> I meant to jot down some notes on my thought process and ended up writing like a whole walkthrough/comparison of the solution in both Ruby and Haskell, and some of my feelings on Haskell so far.
 
 So the [problem](https://adventofcode.com/2020/day/4) is basically that we have a big text file full of records consisting of `key:value` pairs.
 Each `key` is separated from its `value` by a `:`, pairs are separated by whitespace, and records (collections of key, value pairs representing passports) are separated by empty lines:
