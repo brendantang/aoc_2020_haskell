@@ -6,10 +6,15 @@ import Text.Read (readMaybe)
 
 main = do
     inputString <- readFile "data.txt"
-    print $ stringToPassports inputString
-
-
-
+    let passports = catMaybes $ stringToPassports inputString
+    print $ length passports
+    -- mapM_ print passports
+    -- let invalidPassportStrings = filter (isNothing . stringToPassport) (splitOnEmptyLine inputString)
+    -- mapM_ print invalidPassportStrings
+    -- print $ length invalidPassportStrings
+  
+  
+  
 data Passport = Passport BirthYear IssueYear ExpirationYear Height HairColor EyeColor PassportID  deriving (Show)
 
 type BirthYear = Int
@@ -105,33 +110,39 @@ stringToEyeColor s =
 
 stringToBirthYear :: String -> Maybe BirthYear
 stringToBirthYear s 
-    | isJust year = yearInRange 1920 2002 $ fromJust year
+    | isJust year = numberInRange 1920 2002 $ fromJust year
     | otherwise = Nothing
     where year = readMaybe s :: Maybe Int
 
 stringToIssueYear :: String -> Maybe IssueYear
-stringToIssueYear s = maybe Nothing (yearInRange 2010 2020) (readMaybe s :: Maybe Int)
+-- stringToIssueYear s = maybe Nothing (numberInRange 2010 2020) (readMaybe s :: Maybe Int)
+stringToIssueYear s = numberInRange 2010 2020 =<< (readMaybe s :: Maybe Int)
     
 stringToExpirationYear  :: String -> Maybe ExpirationYear
-stringToExpirationYear s = yearInRange 2020 2030 =<< (readMaybe s :: Maybe Int)
+stringToExpirationYear s = numberInRange 2020 2030 =<< (readMaybe s :: Maybe Int)
 
-yearInRange :: Int -> Int -> Int -> Maybe Int
-yearInRange min max year 
-    | year >= min && year <= max = Just year 
+numberInRange :: Int -> Int -> Int -> Maybe Int
+numberInRange min max n
+    | n >= min && n <= max = Just n
     | otherwise = Nothing
 
 
 stringToHeight :: String -> Maybe Height
-stringToHeight s 
-    | length s > 5 = Just $ Centimeters 100
-    | otherwise = Just $ Centimeters 100
+stringToHeight s
+    | null unit || null number = Nothing
+    -- "cm" and "in" using `fmap` two different ways to pass a Maybe Int to the Height constructor to return a Maybe Height.
+    | unit == "cm" = fmap Centimeters $ maybe Nothing (numberInRange 150 193) (readMaybe number :: Maybe Int)
+    | unit == "in" = fmap Inches (numberInRange 59 76 =<< (readMaybe number :: Maybe Int))
+    | otherwise = Nothing
+    where (number, unit) = span (\ c -> c `elem` ['0'..'9']) s
 
 stringToHairColor :: String -> Maybe HairColor
-stringToHairColor s
-    | length s > 5 = Just "col"
-    | otherwise = Just "hair col"
+stringToHairColor ('#':hex) 
+    | length hex == 6 && all (\c -> c `elem` (['0'..'9'] ++ ['a'..'f'])) hex = Just ('#':hex)
+    | otherwise = Nothing
+stringToHairColor _ = Nothing
 
 stringToPassportID :: String -> Maybe PassportID
 stringToPassportID s
-    | length s > 5 = Just "col"
-    | otherwise = Just "Passport id"
+    | length s == 9 && all (\c -> c `elem` ['0'..'9']) s = Just s
+    | otherwise = Nothing
