@@ -1,4 +1,5 @@
 module Main where
+import Data.List ((\\))
 
 type Row = Int
 type Column = Int
@@ -29,4 +30,5 @@ midpoint a b = a + (b - a) `div` 2
 main = do
     inputText <- readFile "boarding_passes.txt"
     let seatIDs = map (seatID . parseSeat) $ lines inputText
-    print $ maximum seatIDs
+    print $ "Highest seat id: " ++ show (maximum seatIDs)
+    print $ "My seat id: " ++ show ([96..987]  \\ seatIDs)
